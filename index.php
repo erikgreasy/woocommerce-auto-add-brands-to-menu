@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 add_filter( 'wp_nav_menu_items', 'your_custom_menu_item', 10, 2 );
 
 function your_custom_menu_item ( $items, $args ) {
-    $cat_name = 'product_cat';
+    $cat_name = 'pwb-brand';
     $menu_name = 'top menu';
 
 
@@ -53,7 +53,7 @@ function your_custom_menu_item ( $items, $args ) {
     foreach( $all_categories as $category ) {
         $name = $category->name;
         $link = get_term_link( $category->slug, $cat_name );
-        if( $name != __('uncategorized') ) {
+        if( $category->count > 0 ) {
 
             $items .= '<ul>
                             <li><a href="'. $link .'">'. $name .'</a></li>

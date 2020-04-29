@@ -17,51 +17,45 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 
 
-add_filter( 'wp_nav_menu_items', 'your_custom_menu_item', 10, 2 );
-
-function your_custom_menu_item ( $items, $args ) {
-    $cat_name = 'pwb-brand';
-    $menu_name = 'top menu';
+add_filter( 'wp_nav_menu_objects', 'auto_add_tax_to_menu' );
 
 
-    if ( $args->menu->name == $menu_name ) {
-        
-        
+function auto_add_tax_to_menu( $items ) {
 
+    $tax_name = 'pwb-brand';
 
-    $taxonomy     = $cat_name;
-    $orderby      = 'name';  
-    $show_count   = 0;      // 1 for yes, 0 for no
-    $pad_counts   = 0;      // 1 for yes, 0 for no
-    $hierarchical = 1;      // 1 for yes, 0 for no  
-    $title        = '';  
-    $empty        = 0;
+    $results = get_terms( array(
+        'taxonomies' => $tax_name
+    ) );
 
-
-
-    $args = array(
-        'taxonomy'     => $taxonomy,
-        'orderby'      => $orderby,
-        'show_count'   => $show_count,
-        'pad_counts'   => $pad_counts,
-        'hierarchical' => $hierarchical,
-        'title_li'     => $title,
-        'hide_empty'   => $empty
-    );
-    $all_categories = get_categories( $args );
-
-    foreach( $all_categories as $category ) {
-        $name = $category->name;
-        $link = get_term_link( $category->slug, $cat_name );
-        if( $category->count > 0 ) {
-
-            $items .= '<ul>
-                            <li><a href="'. $link .'">'. $name .'</a></li>
-                       </ul>';
+    // ITERATE THROUGH MENU ITEMS
+    foreach ( $items as $item ) {
+        $title = $item->title;
+        $ID = $item->ID;
+        if($title=='Domov'){
+            $parentId = $ID;
         }
     }
 
-}
 
-    return $items;
+    // ITERATE THROUGH SELECTED TERM
+    foreach ( $results as $result ) {
+    $name = $result->name;
+    $id = $result->id;
+    $url = get_term_link( $result );
+    $link = array (
+            'title'            => $name,
+            'menu_item_parent' => $parentId,
+            'ID'               => $id,
+            'db_id'            => $id,
+            'url'              => $url,
+            'xfn'              => 'child',
+            'target'           => '',
+            'current'          => ''
+        );
+
+    $items[] = (object) $link;
+    }
+
+    return $items;   
 }
